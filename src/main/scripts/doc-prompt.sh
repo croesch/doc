@@ -24,7 +24,10 @@ _important_documents() {
       fi
       for directory in $(find "${DOC_STORAGE_DIRECTORY}" -type d -exec basename {} \; | sort | uniq -u)
       do
-        COMPREPLY[++i]=${directory}
+        if [[ ${word} == ${cur_word}* ]]
+        then
+          COMPREPLY[++i]=${directory}
+        fi
       done
     done
   fi
