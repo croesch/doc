@@ -73,3 +73,24 @@ teardown() {
 
   containsElement old "${COMPREPLY[@]}"
 }
+
+@test "should contain all elements of folder when no characters are entered after 'add FOLDER1 FOLDER2' and FOLDER1 is direct parent of FOLDER2" {
+  COMP_WORDS=( 'doc' 'add' 'alice' 'bank' '' )
+  COMP_CWORD=4
+  _important_documents
+
+  containsElement bank-1 "${COMPREPLY[@]}"
+  containsElement old "${COMPREPLY[@]}"
+}
+
+@test "should not contain all elements of sibling folder when no characters are entered after 'add FOLDER1 FOLDER2'" {
+  COMP_WORDS=( 'doc' 'add' 'alice' 'bank' '' )
+  COMP_CWORD=4
+  _important_documents
+
+  notContainsElement work "${COMPREPLY[@]}"
+  notContainsElement current-employer "${COMPREPLY[@]}"
+  notContainsElement employer-a "${COMPREPLY[@]}"
+  notContainsElement employer-b "${COMPREPLY[@]}"
+  notContainsElement car "${COMPREPLY[@]}"
+}
