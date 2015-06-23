@@ -1,21 +1,22 @@
 #-*- mode: shell-script;-*-
 
 _get_possible_folders_for_folder() {
-  local folder=$1 cur_word=$2
-  for directory in $(ls "${folder}")
+  local folder=$1 cur_word=$2 error_log=/dev/null
+  for directory in $(ls "${folder}" 2>${error_log})
   do
     if [[ -d "${folder}/${directory}" && ${directory} == ${cur_word}* ]]
     then
       COMPREPLY[i++]=${directory}
     fi
   done
-  for directory in $(find "${folder}" -name "${cur_word}*" -type d -exec basename {} \; | sort | uniq -u)
+  for directory in $(find "${folder}" -name "${cur_word}*" -type d -exec basename {} \; 2>${error_log} | sort | uniq -u)
   do
     COMPREPLY[++i]=${directory}
   done
 }
 
 _directory_for_folder_list() {
+  local error_log=/dev/null
   if [ $# == 1 ]
   then
     echo $1
