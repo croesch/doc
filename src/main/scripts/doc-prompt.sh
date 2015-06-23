@@ -20,16 +20,16 @@ _directory_for_folder_list() {
   if [ $# == 1 ]
   then
     echo $1
-  fi
-  if [ -d "${1}/${2}" ]
+  elif [ -d "${1}/${2}" ]
   then
-    echo "${1}/${2}"
+    echo $(_directory_for_folder_list "${1}/${2}" "${@:3}")
+  else
+    for directory in $(find "${1}" -name "${2}" -type d 2>${error_log})
+    do
+      echo $(_directory_for_folder_list "${directory}" "${@:3}")
+      break
+    done
   fi
-  for directory in $(find "${1}" -name "${2}" -type d)
-  do
-    _directory_for_folder_list "${directory}" "${@:3}"
-    break
-  done
 }
 
 _important_documents() {
@@ -48,7 +48,7 @@ _important_documents() {
     COMPREPLY[i++]="add"
   elif [ $COMP_CWORD -ge 2 ] && [ "${COMP_WORDS[1]}" == "add" ]
   then
-    local directory=$(_directory_for_folder_list "${DOC_STORAGE_DIRECTORY}" "${COMP_WORDS:2:${#COMP_WORDS}-3}")
+    local directory=$(_directory_for_folder_list "${DOC_STORAGE_DIRECTORY}" ${COMP_WORDS[@]:2:${#COMP_WORDS[@]}-3})
     _get_possible_folders_for_folder "${directory}" "${cur_word}"
   fi
 }
