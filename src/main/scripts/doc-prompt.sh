@@ -53,4 +53,4 @@ _important_documents() {
   fi
 }
 
-complete -F _important_documents doc
+complete -o default -F _important_documents doc
