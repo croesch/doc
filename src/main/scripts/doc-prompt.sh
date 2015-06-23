@@ -30,6 +30,7 @@ _directory_for_folder_list() {
       break
     done
   fi
+
 }
 
 _important_documents() {
@@ -50,7 +51,11 @@ _important_documents() {
   then
     local directory=$(_directory_for_folder_list "${DOC_STORAGE_DIRECTORY}" ${COMP_WORDS[@]:2:${#COMP_WORDS[@]}-3})
     _get_possible_folders_for_folder "${directory}" "${cur_word}"
+    if [ ${#COMPREPLY[@]} == 0 ]
+    then
+      COMPREPLY=($(compgen -W "$(find . -type f -printf '%P\n')" -- "${cur_word}"));
+    fi
   fi
 }
 
-complete -o default -F _important_documents doc
+complete -F _important_documents doc
