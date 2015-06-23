@@ -66,14 +66,14 @@ teardown() {
   notContainsElement bank-1 "${COMPREPLY[@]}"
 }
 
-@test "should contain all elements with a* of DOC_STORAGE_DIRECTORY when 'a' is entered after add" {
+@test "should contain all elements with a* when 'a' is entered after add" {
   COMP_WORDS[2]='a'
   _important_documents
 
   containsElement alice "${COMPREPLY[@]}"
 }
 
-@test "should not contain all elements with a* of DOC_STORAGE_DIRECTORY when 'b' is entered after add" {
+@test "should not contain all elements with a* when 'b' is entered after add" {
   COMP_WORDS[2]='b'
   _important_documents
 
