@@ -9,7 +9,7 @@ _get_possible_folders_for_folder() {
       COMPREPLY[i++]=${directory}
     fi
   done
-  for directory in $(find "${folder}" -name "${cur_word}*" -type d -exec basename {} \; 2>${error_log} | sort | uniq -u)
+  for directory in $(find "${folder}" -mindepth 1 -name "${cur_word}*" -type d -exec basename {} \; 2>${error_log} | sort | uniq -u)
   do
     COMPREPLY[++i]=${directory}
   done

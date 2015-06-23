@@ -50,6 +50,12 @@ teardown() {
   notContainsElement old "${COMPREPLY[@]}"
 }
 
+@test "should not contain itself when no characters are entered after 'add FOLDER'" {
+  _important_documents
+
+  notContainsElement alice "${COMPREPLY[@]}"
+}
+
 @test "should contain all elements with e* when 'e' is entered after 'add FOLDER'" {
   COMP_WORDS[3]='e'
   _important_documents
@@ -63,6 +69,14 @@ teardown() {
   _important_documents
 
   notContainsElement employer-a "${COMPREPLY[@]}"
+  notContainsElement employer-b "${COMPREPLY[@]}"
+}
+
+@test "should not contain itself when no characters are entered after 'add FOLDER1 FOLDER2' and FOLDER1 is not direct parent of FOLDER2" {
+  COMP_WORDS=( 'doc' 'add' 'alice' 'employer-b' '' )
+  COMP_CWORD=4
+  _important_documents
+
   notContainsElement employer-b "${COMPREPLY[@]}"
 }
 
