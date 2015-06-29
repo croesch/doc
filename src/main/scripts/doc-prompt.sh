@@ -15,6 +15,21 @@ _get_possible_folders_for_folder() {
   done
 }
 
+_get_possible_entries_for_folder() {
+  local folder=$1 cur_word=$2 error_log=/dev/null
+  for entry in $(ls "${folder}" 2>${error_log})
+  do
+    if [[ ${entry} == ${cur_word}* ]]
+    then
+      COMPREPLY[i++]=${entry}
+    fi
+  done
+  for entry in $(find "${folder}" -mindepth 1 -name "${cur_word}*" -exec basename {} \; 2>${error_log} | sort | uniq -u)
+  do
+    COMPREPLY[++i]=${entry}
+  done
+}
+
 _directory_for_folder_list() {
   local error_log=/dev/null
   if [ $# == 1 ]
@@ -55,6 +70,10 @@ _important_documents() {
     then
       COMPREPLY=($(compgen -W "$(find . -type f -printf '%P\n')" -- "${cur_word}"));
     fi
+  elif [ $COMP_CWORD -ge 2 ] && [ "${COMP_WORDS[1]}" == "view" ]
+  then
+    local directory=$(_directory_for_folder_list "${DOC_STORAGE_DIRECTORY}" ${COMP_WORDS[@]:2:${#COMP_WORDS[@]}-3})
+    _get_possible_entries_for_folder "${directory}" "${cur_word}"
   fi
 }
 
