@@ -70,6 +70,10 @@ _important_documents() {
     then
       COMPREPLY=($(compgen -W "$(find . -type f -printf '%P\n')" -- "${cur_word}"));
     fi
+  elif [ $COMP_CWORD -ge 3 ] && [ "${COMP_WORDS[1]}" == "directory" ] && [ "${COMP_WORDS[2]}" == "add" ]
+  then
+    local directory=$(_directory_for_folder_list "${DOC_STORAGE_DIRECTORY}" ${COMP_WORDS[@]:3:${#COMP_WORDS[@]}-4})
+    _get_possible_folders_for_folder "${directory}" "${cur_word}"
   elif [ $COMP_CWORD -ge 2 ] && [ "${COMP_WORDS[1]}" == "view" ]
   then
     local directory=$(_directory_for_folder_list "${DOC_STORAGE_DIRECTORY}" ${COMP_WORDS[@]:2:${#COMP_WORDS[@]}-3})
