@@ -52,7 +52,7 @@ _important_documents() {
   local i=0 cur_word=${COMP_WORDS[COMP_CWORD]} prev_word=${COMP_WORDS[COMP_CWORD-1]} word
   if [ $COMP_CWORD == 1 ]
   then
-    for word in add view directory
+    for word in init add view directory
     do
       if [[ ${word} == ${cur_word}* ]]
       then
@@ -78,6 +78,10 @@ _important_documents() {
   then
     local directory=$(_directory_for_folder_list "${DOC_STORAGE_DIRECTORY}" ${COMP_WORDS[@]:2:${#COMP_WORDS[@]}-3})
     _get_possible_entries_for_folder "${directory}" "${cur_word}"
+  elif [ $COMP_CWORD -ge 2 ] && [ "${COMP_WORDS[1]}" == "init" ]
+  then
+    local directory=$(_directory_for_folder_list "$(pwd)" ${COMP_WORDS[@]:2:${#COMP_WORDS[@]}-3})
+    _get_possible_folders_for_folder "${directory}" "${cur_word}"
   fi
 }
 
