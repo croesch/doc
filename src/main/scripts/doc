@@ -1,0 +1,91 @@
+#!/bin/bash
+
+
+function directory_for_folder_list() {
+  local error_log=/dev/null
+  if [ $# == 1 ]
+  then
+    echo $1
+  elif [ -d "${1}/${2}" ]
+  then
+    echo $(directory_for_folder_list "${1}/${2}" "${@:3}")
+  else
+    for directory in $(find "${1}" -name "${2}" -type d 2>${error_log})
+    do
+      directory_for_folder_list "${directory}" "${@:3}"
+      break
+    done
+  fi
+}
+
+function say() {
+  echo "doc: ${1}."
+}
+
+function insert_environment_variable() {
+  if grep -q "^export DOC_STORAGE_DIRECTORY=" "${HOME}/.bashrc" 2>&1 > /dev/null
+  then
+    sed --follow-symlinks -i -e "s|^export DOC_STORAGE_DIRECTORY=.*$|export DOC_STORAGE_DIRECTORY=\"${1}\"|g" "${HOME}/.bashrc" 2>&1 > /dev/null
+  else
+    echo "export DOC_STORAGE_DIRECTORY=\"${1}\"" >> "${HOME}/.bashrc" 2> /dev/null
+  fi
+}
+
+function init() {
+  directory="$(directory_for_folder_list "$(pwd)" "${@}")"
+#  echo $directory
+#  echo "done"
+#  exit 0
+
+  if [ ! -d "${directory}" ]
+  then
+    say "'${1}' is not a directory"
+    exit 1
+  elif [ "$(git --version 2>&1 > /dev/null)" ]
+  then
+    say "git is not installed"
+    exit 3
+  fi
+
+  pushd "${directory}" 2>&1 > /dev/null
+  if [ ! "$(git status 2>&1 > /dev/null)" ]
+  then
+    # git directory
+    if [[ $(git status --porcelain) ]]
+    then
+      # unstaged changes
+      git add . 2>&1 > /dev/null
+      git commit -m "Install doc thus all files are committed." 2>&1 > /dev/null
+    fi
+    popd 2>&1 > /dev/null
+
+    insert_environment_variable "${directory}"
+    say "Successfully used repo at '${directory}'"
+    exit 0
+  fi
+  popd 2>&1 > /dev/null
+
+  if [ "$(ls -A "${directory}")" ]
+  then
+    say "Directory not empty '${directory}'"
+    exit 2
+  fi
+
+  pushd "${directory}" 2>&1 > /dev/null
+  git init 2>&1 > /dev/null
+  popd 2>&1 > /dev/null
+
+  insert_environment_variable "${directory}"
+  say "Successfully initialised repo at '${directory}'"
+}
+
+if [ "$1" == "init" ]
+then
+  if [ "$#" == 1 ]
+  then
+    say "Please give a directory"
+    exit 4
+  fi
+  shift
+  init $@
+fi
