@@ -33,9 +33,6 @@ function insert_environment_variable() {
 
 function init() {
   directory="$(directory_for_folder_list "$(pwd)" "${@}")"
-#  echo $directory
-#  echo "done"
-#  exit 0
 
   if [ ! -d "${directory}" ]
   then
