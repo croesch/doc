@@ -76,6 +76,42 @@ function init() {
   say "Successfully initialised repo at '${directory}'"
 }
 
+function directory_add() {
+  if [ "$DOC_STORAGE_DIRECTORY" == "" ]
+  then
+    say "'DOC_STORAGE_DIRECTORY' unset. Use 'doc init FOLDER' first"
+    exit 5
+  fi
+
+  directory="$(directory_for_folder_list "$DOC_STORAGE_DIRECTORY" "${@:1:${#}-1}")"
+  new_directory="${@: -1}"
+  new_path="$directory/$new_directory"
+  if [ -d "$new_path" ]
+  then
+    say "'$new_directory' already exists"
+    exit 7
+  fi
+
+  mkdir "$new_path"
+  say "Successfully created directory '${new_path#${DOC_STORAGE_DIRECTORY}/}'"
+}
+
+function directory() {
+  if [ "$1" == "add" ]
+  then
+    if [ "$#" == 1 ]
+    then
+      say "Please give a directory name"
+      exit 6
+    fi
+    shift
+    directory_add $@
+  fi
+
+  say "Please give a valid command"
+  exit 8
+}
+
 if [ "$1" == "init" ]
 then
   if [ "$#" == 1 ]
@@ -85,4 +121,8 @@ then
   fi
   shift
   init $@
+elif [ "$1" == "directory" ]
+then
+  shift
+  directory $@
 fi
