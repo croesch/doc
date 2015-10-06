@@ -76,12 +76,16 @@ function init() {
   say "Successfully initialised repo at '${directory}'"
 }
 
-function directory_add() {
+function check_storage_envvar() {
   if [ "$DOC_STORAGE_DIRECTORY" == "" ]
   then
     say "'DOC_STORAGE_DIRECTORY' unset. Use 'doc init FOLDER' first"
     exit 5
   fi
+}
+
+function directory_add() {
+  check_storage_envvar
 
   directory="$(directory_for_folder_list "$DOC_STORAGE_DIRECTORY" "${@:1:${#}-1}")"
   new_directory="${@: -1}"
@@ -113,7 +117,39 @@ function directory() {
   exit 8
 }
 
-if [ "$1" == "init" ]
+function add_list() {
+  check_storage_envvar
+
+  directory="$(directory_for_folder_list "$DOC_STORAGE_DIRECTORY" "${@:1:${#}-1}")"
+  file="${@: -1}"
+  new_path="$directory/${file}.gpg"
+  if [ -f "$file" ]
+  then
+    gpg -r croesch -o "$new_path" -e "$file"
+    rm "$file"
+    say "Successfully added '$file'"
+    exit 0
+  fi
+
+  say "'$file' not found"
+  exit 10
+}
+
+function add() {
+  if [ "$#" == 0 ]
+  then
+    say "Please give a file to add"
+    exit 9
+  fi
+
+  add_list $@
+}
+
+if [ "$1" == "add" ]
+then
+  shift
+  add $@
+elif [ "$1" == "init" ]
 then
   if [ "$#" == 1 ]
   then
