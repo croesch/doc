@@ -8,13 +8,11 @@ setup() {
   touch $BATS_TMPDIR_PWD/folder/file-3
 
   sed --follow-symlinks -i -e "s|^export DOC_STORAGE_DIRECTORY=|#export DOC_STORAGE_DIRECTORY=|g" "${HOME}/.bashrc" 2>&1 > /dev/null
-  echo "setup" >>/tmp/log
 
   cd $BATS_TMPDIR_PWD
 }
 
 teardown() {
-  echo "tear" >>/tmp/log
   rm -fr $BATS_TMPDIR_PWD
 
   sed --follow-symlinks -i "/^export DOC_STORAGE_DIRECTORY=/d" "${HOME}/.bashrc" 2>&1 > /dev/null
