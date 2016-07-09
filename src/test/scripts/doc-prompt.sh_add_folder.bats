@@ -12,6 +12,8 @@ load helper
 setup() {
   BATS_TMPDIR_STORAGE="${BATS_TMPDIR}/storage"
   BATS_TMPDIR_PWD="${BATS_TMPDIR}/pwd"
+  mkdir -p $BATS_TMPDIR_STORAGE/.git/hooks
+  mkdir -p $BATS_TMPDIR_STORAGE/.git/objects
   mkdir -p $BATS_TMPDIR_STORAGE/alice/work/current-employer
   mkdir -p $BATS_TMPDIR_STORAGE/alice/work/employer-a
   mkdir -p $BATS_TMPDIR_STORAGE/alice/work/employer-b
@@ -78,4 +80,27 @@ teardown() {
   _important_documents
 
   notContainsElement alice "${COMPREPLY[@]}"
+}
+
+@test "should ignore .git folder with current word" {
+  COMP_WORDS[2]='h'
+  _important_documents
+
+  notContainsElement hooks "${COMPREPLY[@]}"
+  notContainsElement objects "${COMPREPLY[@]}"
+}
+
+@test "should ignore .git folder without current word" {
+  _important_documents
+
+  notContainsElement hooks "${COMPREPLY[@]}"
+  notContainsElement objects "${COMPREPLY[@]}"
+}
+
+@test "should ignore .git folder with current word '.gi'" {
+  COMP_WORDS[2]='.gi'
+  _important_documents
+
+  notContainsElement hooks "${COMPREPLY[@]}"
+  notContainsElement objects "${COMPREPLY[@]}"
 }

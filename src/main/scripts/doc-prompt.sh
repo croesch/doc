@@ -1,17 +1,25 @@
 #-*- mode: shell-script;-*-
 
+_add_possible_folder() {
+  local directory=$1
+  if [ "${directory}" != ".git" ]
+  then
+    COMPREPLY[i++]=${directory}
+  fi
+}
+
 _get_possible_folders_for_folder() {
   local folder=$1 cur_word=$2 error_log=/dev/null
   for directory in $(ls "${folder}" 2>${error_log})
   do
     if [[ -d "${folder}/${directory}" && ${directory} == ${cur_word}* ]]
     then
-      COMPREPLY[i++]=${directory}
+      _add_possible_folder "${directory}"
     fi
   done
-  for directory in $(find "${folder}" -mindepth 1 -name "${cur_word}*" -type d -exec basename {} \; 2>${error_log} | sort | uniq -u)
+  for directory in $(find "${folder}" -mindepth 1 -name "${cur_word}*" -type d -not -path "*/.git/*" -exec basename {} \; 2>${error_log} | sort | uniq -u)
   do
-    COMPREPLY[++i]=${directory}
+    _add_possible_folder "${directory}"
   done
 }
 
@@ -64,6 +72,7 @@ _important_documents() {
     COMPREPLY[i++]="add"
   elif [ $COMP_CWORD -ge 2 ] && [ "${COMP_WORDS[1]}" == "add" ]
   then
+    # pass the storage directory and all arguments except the last one to the method
     local directory=$(_directory_for_folder_list "${DOC_STORAGE_DIRECTORY}" ${COMP_WORDS[@]:2:${#COMP_WORDS[@]}-3})
     _get_possible_folders_for_folder "${directory}" "${cur_word}"
     if [ ${#COMPREPLY[@]} == 0 ]
