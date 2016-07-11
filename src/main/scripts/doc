@@ -1,5 +1,17 @@
 #!/bin/bash
 
+function say() {
+  echo "doc: ${1}."
+}
+
+function error_exit() {
+  say "$1" 1>&2
+  exit $2
+}
+
+function sub_error() {
+  error_exit "Error in sub routine" 11
+}
 
 function directory_for_folder_list() {
   local error_log=/dev/null
@@ -18,10 +30,6 @@ function directory_for_folder_list() {
   fi
 }
 
-function say() {
-  echo "doc: ${1}."
-}
-
 function insert_environment_variable() {
   if grep -q "^export DOC_STORAGE_DIRECTORY=" "${HOME}/.bashrc" 2>&1 > /dev/null
   then
@@ -36,12 +44,10 @@ function init() {
 
   if [ ! -d "${directory}" ]
   then
-    say "'${1}' is not a directory"
-    exit 1
+    error_exit "'${1}' is not a directory" 1
   elif [ "$(git --version 2>&1 > /dev/null)" ]
   then
-    say "git is not installed"
-    exit 3
+    error_exit "git is not installed" 3
   fi
 
   pushd "${directory}" 2>&1 > /dev/null
@@ -64,8 +70,7 @@ function init() {
 
   if [ "$(ls -A "${directory}")" ]
   then
-    say "Directory not empty '${directory}'"
-    exit 2
+    error_exit "Directory not empty '${directory}'" 2
   fi
 
   pushd "${directory}" 2>&1 > /dev/null
@@ -79,8 +84,7 @@ function init() {
 function check_storage_envvar() {
   if [ "$DOC_STORAGE_DIRECTORY" == "" ]
   then
-    say "'DOC_STORAGE_DIRECTORY' unset. Use 'doc init FOLDER' first"
-    exit 5
+    error_exit "'DOC_STORAGE_DIRECTORY' unset. Use 'doc init FOLDER' first" 5
   fi
 }
 
@@ -92,8 +96,7 @@ function directory_add() {
   new_path="$directory/$new_directory"
   if [ -d "$new_path" ]
   then
-    say "'$new_directory' already exists"
-    exit 7
+    error_exit "'$new_directory' already exists" 7
   fi
 
   mkdir "$new_path"
@@ -106,8 +109,7 @@ function directory() {
   then
     if [ "$#" == 1 ]
     then
-      say "Please give a directory name"
-      exit 6
+      error_exit "Please give a directory name" 6
     fi
     shift
     directory_add $@
@@ -131,15 +133,13 @@ function add_list() {
     exit 0
   fi
 
-  say "'$file' not found"
-  exit 10
+  error_exit "'$file' not found" 10
 }
 
 function add() {
   if [ "$#" == 0 ]
   then
-    say "Please give a file to add"
-    exit 9
+    error_exit "Please give a file to add" 9
   fi
 
   add_list $@
