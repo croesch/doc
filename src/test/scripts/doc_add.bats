@@ -13,12 +13,20 @@ setup() {
   echo "File 1" > $BATS_TMPDIR_PWD/file
   echo "File 2" > $BATS_TMPDIR_PWD/folder/file-2
 
+  BATS_GITDIR="${BATS_TMPDIR}/git"
+  mkdir -p $BATS_GITDIR
+
   cd $BATS_TMPDIR_PWD
 }
 
 teardown() {
   rm -fr $BATS_TMPDIR_PWD
   rm -fr $BATS_TMPDIR_STORAGE
+  rm -fr $BATS_GITDIR
+}
+
+function uncommitted_files {
+  expr `git status --porcelain 2>/dev/null | wc -l`;
 }
 
 @test "should do nothing when DOC_STORAGE_DIRECTORY is unset" {
@@ -68,6 +76,26 @@ teardown() {
   # TODO verify gpg file
   [ -f "$DOC_STORAGE_DIRECTORY/file.gpg" ]
   [ ! -f "$BATS_TMPDIR_PWD/file" ]
+}
+
+@test "should commit the files." {
+  pushd $DOC_STORAGE_DIRECTORY
+  git init
+  git remote add origin "file://$BATS_GITDIR/"
+  touch "$DOC_STORAGE_DIRECTORY/first-file"
+  [ "$(uncommitted_files)" != "0" ]
+  popd
+  pushd $BATS_GITDIR
+  git init --bare
+  popd
+  [ -f "$BATS_TMPDIR_PWD/file" ]
+
+  run doc add file
+  [ "$status" -eq 0 ]
+
+  pushd $DOC_STORAGE_DIRECTORY
+  [ "$(uncommitted_files)" == "0" ]
+  popd
 }
 
 @test "should create file even if it exists in subfolder (and no path given)." {
