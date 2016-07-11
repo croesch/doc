@@ -64,7 +64,7 @@ function init() {
 
     insert_environment_variable "${directory}"
     say "Successfully used repo at '${directory}'"
-    exit 0
+    return 0
   fi
   popd 2>&1 > /dev/null
 
@@ -101,7 +101,7 @@ function directory_add() {
 
   mkdir "$new_path"
   say "Successfully created directory '${new_path#${DOC_STORAGE_DIRECTORY}/}'"
-  exit 0
+  return 0
 }
 
 function directory() {
@@ -113,6 +113,7 @@ function directory() {
     fi
     shift
     directory_add $@
+    return $?
   fi
 
   say "Please give a valid command"
@@ -130,7 +131,7 @@ function add_list() {
     gpg -r croesch -o "$new_path" -e "$file"
     rm "$file"
     say "Successfully added '$file'"
-    exit 0
+    return 0
   fi
 
   error_exit "'$file' not found" 10
