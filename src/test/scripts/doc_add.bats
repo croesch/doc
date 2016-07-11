@@ -46,6 +46,18 @@ teardown() {
   [ "$output" = "doc: Please give a file to add." ]
 }
 
+@test "should not use subdirectories in new file name." {
+  [ -f "$BATS_TMPDIR_PWD/folder/file-2" ]
+
+  run doc add folder/file-2
+  [ "$status" -eq 0 ]
+  [ "$output" = "doc: Successfully added 'folder/file-2'." ]
+
+  [ -f "$DOC_STORAGE_DIRECTORY/file-2.gpg" ]
+  [ ! -f "$DOC_STORAGE_DIRECTORY/folder/file-2.gpg" ]
+  [ ! -f "$BATS_TMPDIR_PWD/folder/file-2" ]
+}
+
 @test "should add encrypted file and remove source if it not exists (and no path given)." {
   [ -f "$BATS_TMPDIR_PWD/file" ]
 

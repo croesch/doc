@@ -125,7 +125,8 @@ function add_list() {
 
   directory="$(directory_for_folder_list "$DOC_STORAGE_DIRECTORY" "${@:1:${#}-1}")"
   file="${@: -1}"
-  new_path="$directory/${file}.gpg"
+  new_file="$(basename $file)"
+  new_path="$directory/${new_file}.gpg"
   if [ -f "$file" ]
   then
     gpg -r croesch -o "$new_path" -e "$file"
