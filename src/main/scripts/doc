@@ -129,8 +129,8 @@ function add_list() {
   new_path="$directory/${new_file}.gpg"
   if [ -f "$file" ]
   then
-    gpg -r croesch -o "$new_path" -e "$file"
-    rm "$file"
+    gpg -r croesch -o "$new_path" -e "$file" || sub_error
+    rm "$file" || sub_error
     say "Successfully added '$file'"
     return 0
   fi
