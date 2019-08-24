@@ -1,0 +1,12 @@
+version: '3'
+services:
+  archlinux-test:
+    build:
+      context: .
+      dockerfile: src/test/docker/archlinux
+    network_mode: host
+  ubuntu1804-test:
+    build:
+      context: .
+      dockerfile: src/test/docker/ubuntu1804
+    network_mode: host

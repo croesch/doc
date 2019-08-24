@@ -1,0 +1,11 @@
+FROM archlinux/base
+
+RUN pacman -Sy --noconfirm archlinux-keyring
+RUN pacman -Syu --noconfirm
+RUN pacman -S --noconfirm bash-bats
+
+ADD . /opt/doc
+WORKDIR /opt/doc
+
+CMD [ "bash", "-c", "bats src/test/scripts/" ]
+
